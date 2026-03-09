@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wall of Giving</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --bg2: #12122a;
+    --bg3: #1a1a35;
+    --card: #161630;
+    --border: rgba(139,92,246,0.15);
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --grad: linear-gradient(135deg, #8b5cf6, #ec4899);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --radius: 14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  
+  /* Background mesh */
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(139,92,246,0.08) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 80%,rgba(236,72,153,0.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(13,13,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .logo-icon{width:40px;height:40px;background:var(--grad);border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff;font-family:'Syne',sans-serif}
+  .logo-text{font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-links{display:flex;align-items:center;gap:8px}
+  .nav-links a{font-size:.9rem;color:var(--muted);text-decoration:none;padding:6px 14px;border-radius:8px;transition:all .2s;cursor:pointer}
+  .nav-links a:hover,.nav-links a.active{color:var(--text)}
+  .nav-links a.active{color:#fff;font-weight:600}
+  .nav-right{display:flex;align-items:center;gap:10px}
+  .user-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);font-size:.85rem;color:var(--muted)}
+  .user-pill svg{width:14px;height:14px}
+  .btn{padding:8px 20px;border-radius:20px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+  .btn-outline{background:transparent;border:2px solid var(--purple);color:var(--purple)}
+  .btn-outline:hover{background:var(--purple);color:#fff}
+  .btn-grad{background:var(--grad);color:#fff}
+  .btn-grad:hover{opacity:.9;transform:translateY(-1px)}
+
+  /* PAGES */
+  .page{display:none;min-height:calc(100vh - 68px);position:relative;z-index:1;animation:fadeIn .3s ease}
+  .page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* HOME */
+  .hero{text-align:center;padding:100px 5% 60px;position:relative}
+  .hero h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,7vw,5.5rem);font-weight:800;line-height:1.05;background:linear-gradient(135deg,#c4b5fd 0%,#8b5cf6 40%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px}
+  .hero p{font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 48px;line-height:1.7}
+  .stats{display:flex;justify-content:center;gap:60px;flex-wrap:wrap;margin-bottom:80px}
+  .stat-val{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-label{font-size:.85rem;color:var(--muted);margin-top:4px}
+  .section-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:var(--purple);padding:0 5%;margin-bottom:32px}
+  
+  /* CARDS GRID */
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;padding:0 5% 80px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:all .25s;cursor:pointer}
+  .card:hover{border-color:rgba(139,92,246,0.4);transform:translateY(-3px);box-shadow:0 12px 40px rgba(139,92,246,0.12)}
+  .card-tag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:.75rem;font-weight:600;margin-bottom:14px;background:rgba(139,92,246,0.15);color:var(--purple)}
+  .card h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:10px}
+  .card p{font-size:.88rem;color:var(--muted);line-height:1.6}
+  .card-meta{display:flex;align-items:center;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+  .card-meta span{font-size:.8rem;color:var(--muted)}
+  .badge{padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+  .badge-active{background:rgba(34,197,94,0.15);color:#4ade80}
+  .badge-review{background:rgba(251,191,36,0.15);color:#fbbf24}
+  .badge-solved{background:rgba(139,92,246,0.15);color:var(--purple)}
+
+  /* PROBLEMS PAGE */
+  .page-header{padding:60px 5% 40px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px}
+  .page-header-text h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--purple);margin-bottom:8px}
+  .page-header-text p{color:var(--muted);font-size:.95rem;max-width:560px}
+  .empty-state{margin:20px 5%;padding:60px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);text-align:center;color:var(--muted)}
+
+  /* DASHBOARD */
+  .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;padding:0 5% 40px}
+  .dash-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;display:flex;align-items:flex-start;gap:18px}
+  .dash-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;flex-shrink:0}
+  .dash-icon.red{background:rgba(239,68,68,0.15)}
+  .dash-icon.blue{background:rgba(59,130,246,0.15)}
+  .dash-icon.green{background:rgba(34,197,94,0.15)}
+  .dash-icon.yellow{background:rgba(251,191,36,0.15)}
+  .dash-label{font-size:.9rem;font-weight:600;margin-bottom:8px}
+  .dash-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--purple);line-height:1}
+  .dash-sub{font-size:.8rem;color:var(--muted);margin-top:6px}
+
+  /* NGO PORTAL */
+  .ngo-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding:0 5% 60px}
+  @media(max-width:768px){.ngo-grid{grid-template-columns:1fr}}
+  .ngo-section h2{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+
+  /* CHARITY */
+  /* CONTACT */
+  .contact-wrapper{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;padding:0 5% 60px}
+  @media(max-width:768px){.contact-wrapper{grid-template-columns:1fr}}
+  .contact-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px}
+  .contact-box h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:28px}
+  .contact-item{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+  .contact-icon{width:46px;height:46px;border-radius:12px;background:var(--grad);display:grid;place-items:center;font-size:1.1rem;flex-shrink:0}
+  .contact-item-text .label{font-weight:600;font-size:.9rem;margin-bottom:2px}
+  .contact-item-text .value{color:var(--muted);font-size:.88rem}
+
+  /* FORMS */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .form-group{margin-bottom:16px}
+  .form-group label{display:block;font-size:.85rem;font-weight:500;color:var(--muted);margin-bottom:6px}
+  .form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;transition:border-color .2s;outline:none;resize:vertical}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--purple)}
+  .form-group textarea{min-height:140px}
+  .form-group select option{background:var(--bg2)}
+  .submit-btn{width:100%;padding:14px;background:var(--grad);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:opacity .2s,transform .2s}
+  .submit-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+  /* FOOTER */
+  footer{background:rgba(0,0,0,0.3);border-top:1px solid var(--border);padding:48px 5%;text-align:center}
+  .footer-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px}
+  .footer-links{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+  .footer-links a{color:var(--muted);font-size:.88rem;text-decoration:none;padding:4px 12px;cursor:pointer}
+  .footer-links a:hover{color:var(--text)}
+  .footer-copy{font-size:.82rem;color:var(--muted)}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:modalIn .25s ease}
+  @keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+  .modal-header h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;padding:4px;line-height:1}
+  .modal-close:hover{color:var(--text)}
+
+  /* AUTH */
+  .auth-tabs{display:flex;gap:0;margin-bottom:28px;border:1px solid var(--border);border-radius:10px;padding:4px}
+  .auth-tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-weight:600;font-size:.9rem;transition:all .2s;color:var(--muted)}
+  .auth-tab.active{background:var(--grad);color:#fff}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:30px;right:30px;z-index:300;background:var(--bg2);border:1px solid var(--purple);border-radius:12px;padding:14px 20px;font-size:.9rem;transform:translateY(100px);opacity:0;transition:all .3s;max-width:320px}
+  .toast.show{transform:translateY(0);opacity:1}
+  .toast.success{border-color:#4ade80}
+  .toast.error{border-color:#f87171}
+
+  /* PROBLEM DETAIL */
+  .detail-header{padding:60px 5% 40px}
+  .detail-header h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:12px}
+  .detail-body{padding:0 5% 60px;display:grid;grid-template-columns:2fr 1fr;gap:32px}
+  @media(max-width:768px){.detail-body{grid-template-columns:1fr}}
+  .detail-content{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px}
+  .detail-content h2{font-family:'Syne',sans-serif;font-size:1.1rem;margin-bottom:16px}
+  .detail-content p{color:var(--muted);line-height:1.8;font-size:.93rem;margin-bottom:20px}
+  .solution-card{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:20px;margin-bottom:16px}
+  .solution-card h4{font-weight:600;margin-bottom:8px;font-size:.95rem}
+  .solution-card p{font-size:.87rem;color:var(--muted);line-height:1.6}
+  .vote-btn{background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.82rem;color:var(--muted);cursor:pointer;transition:all .2s;margin-top:10px}
+  .vote-btn:hover{border-color:var(--purple);color:var(--purple)}
+  .sidebar-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+  .sidebar-box h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:16px}
+
+  /* Page title gradient */
+  .page-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.3);border-radius:3px}
+
+  .get-in-touch{text-align:center;padding:60px 5% 40px}
+  .get-in-touch h1{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+  .get-in-touch p{color:var(--muted);font-size:1rem}
+
+  .charity-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;padding:60px 5% 40px}
+  .charity-header .text h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--purple);margin-bottom:8px}
+  .charity-header .text p{color:var(--muted);font-size:.9rem;max-width:500px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" onclick="goTo('home')">
+    <div class="logo-icon">W</div>
+    <span class="logo-text">Wall of Giving</span>
+  </a>
+  <div class="nav-links">
+    <a onclick="goTo('home')" id="nav-home" class="active">Home</a>
+    <a onclick="goTo('problems')" id="nav-problems">Problems</a>
+    <a onclick="goTo('dashboard')" id="nav-dashboard">Dashboard</a>
+    <a onclick="goTo('ngo')" id="nav-ngo">NGO Portal</a>
+    <a onclick="goTo('charity')" id="nav-charity">Charity</a>
+    <a onclick="goTo('contact')" id="nav-contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div class="user-pill" id="user-pill" style="display:none">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span id="user-name">User</span>
+    </div>
+    <button class="btn btn-outline" id="auth-btn" onclick="openAuth()">Sign In</button>
+    <button class="btn btn-outline" id="signout-btn" style="display:none" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h1>Connect. Solve.<br>Transform.</h1>
+    <p>Bridging the gap between NGOs, students, and donors to create meaningful impact. Together, we solve real-world problems and build a better tomorrow.</p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="stat-problems">0+</div>
+        <div class="stat-label">Problems Posted</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">180+</div>
+        <div class="stat-label">Solutions Provided</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">₹45L+</div>
+        <div class="stat-label">Funds Raised</div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">Featured Problems</div>
+  <div class="cards-grid" id="featured-problems">
+    <div class="empty-state" style="padding:40px;text-align:center;color:var(--muted);grid-column:1/-1">No problems posted yet. Be the first to post a challenge!</div>
+  </div>
+</div>
+
+<!-- PROBLEMS PAGE -->
+<div class="page" id="page-problems">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1>All Problems</h1>
+      <p>Browse challenges posted by the community. Click any problem to see solutions, submit yours, or contact the poster.</p>
+    </div>
+    <button class="btn btn-grad" onclick="openPostProblem()">✦ Post a Problem</button>
+  </div>
+  <div class="cards-grid" id="problems-list">
+    <div class="empty-state" style="padding:40px;grid-column:1/-1">No problems posted yet.</div>
+  </div>
+</div>
+
+<!-- PROBLEM DETAIL PAGE -->
+<div class="page" id="page-problem-detail">
+  <div class="detail-header">
+    <button onclick="goTo('problems')" style="background:none;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;margin-bottom:20px;font-family:'DM Sans',sans-serif">← Back to Problems</button>
+    <div class="badge badge-active" id="detail-status" style="margin-bottom:12px">Active</div>
+    <h1 id="detail-title"></h1>
+    <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+      <span id="detail-category" class="badge" style="background:rgba(139,92,246,0.15);color:var(--purple)"></span>
+      <span id="detail-poster" style="font-size:.85rem;color:var(--muted)"></span>
+      <span id="detail-date" style="font-size:.85rem;color:var(--muted)"></span>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div>
+      <div class="detail-content">
+        <h2>Problem Description</h2>
+        <p id="detail-desc"></p>
+        <h2>Solutions (<span id="sol-count">0</span>)</h2>
+        <div id="solutions-list"></div>
+        <button class="submit-btn" style="margin-top:8px" onclick="openSolutionModal()">Submit a Solution</button>
+      </div>
+    </div>
+    <div>
+      <div class="sidebar-box">
+        <h3>Problem Info</h3>
+        <div style="font-size:.85rem;color:var(--muted);line-height:2">
+          <div><strong style="color:var(--text)">Category:</strong> <span id="sb-category"></span></div>
+          <div><strong style="color:var(--text)">Posted by:</strong> <span id="sb-poster"></span></div>
+          <div><strong style="color:var(--text)">Date:</strong> <span id="sb-date"></span></div>
+          <div><strong style="color:var(--text)">Status:</strong> <span id="sb-status"></span></div>
+        </div>
+      </div>
+      <div class="sidebar-box">
+        <h3>Contact Poster</h3>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Reach out directly to collaborate or provide assistance.</p>
+        <button class="submit-btn" onclick="showToast('Message feature coming soon!','success')">Send Message</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="page" id="page-dashboard">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1 class="page-title" style="font-size:2rem">Dashboard Overview</h1>
+      <p style="color:var(--muted)">Track problems, solutions, and impact metrics</p>
+    </div>
+  </div>
+  <div class="dashboard-grid">
+    <div class="dash-card">
+      <div class="dash-icon red">🔥</div>
+      <div>
+        <div class="dash-label">Active Problems</div>
+        <div class="dash-num" id="d-active">0</div>
+        <div class="dash-sub">Problems awaiting solutions</div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon blue">💡</div>
+      <div>
+        <div class="dash-label">Total Solutions</div>
+        <div class="dash-num" id="d-solutions">0</div>
+        <div class="dash-sub">Solutions submitted</div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon green">✅</div>
+      <div>
+        <div class="dash-label">Solved Problems</div>
+        <div class="dash-num" id="d-solved">0</div>
+        <div class="dash-sub">Successfully implemented</div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-icon yellow">⏳</div>
+      <div>
+        <div class="dash-label">Pending Review</div>
+        <div class="dash-num" id="d-pending">0</div>
+        <div class="dash-sub">Under evaluation</div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 5% 60px">
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:20px">Recent Activity</h2>
+    <div id="recent-activity" class="empty-state">No recent activity yet.</div>
+  </div>
+</div>
+
+<!-- NGO PORTAL PAGE -->
+<div class="page" id="page-ngo">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h1 class="page-title">NGO Portal</h1>
+      <p style="color:var(--muted)">Browse NGO problems and submit solutions. Only NGO accounts can post here.</p>
+    </div>
+    <button class="btn btn-grad" onclick="openPostProblem('NGO')">Post NGO Problem</button>
+  </div>
+  <div class="ngo-grid">
+    <div class="ngo-section">
+      <h2>NGO Problems</h2>
+      <div id="ngo-problems"><p style="color:var(--muted);font-size:.9rem">No problems posted yet.</p></div>
+    </div>
+    <div class="ngo-section">
+      <h2>🎁 Active Charity Drives</h2>
+      <div id="ngo-charities"><p style="color:var(--muted);font-size:.9rem">No charity drives yet.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARITY PAGE -->
+<div class="page" id="page-charity">
+  <div class="charity-header">
+    <div class="text">
+      <h1>Charity & Donation Drives</h1>
+      <p>Find where you can go and give — food, clothing, books, or your time. No solutions needed, just kindness.</p>
+    </div>
+    <button class="btn btn-grad" onclick="openCharityModal()">🎁 Post a Charity Drive</button>
+  </div>
+  <div style="padding:0 5% 60px">
+    <div class="cards-grid" id="charity-list" style="padding:0">
+      <div class="empty-state" style="padding:60px;grid-column:1/-1">No charity drives posted yet. Be the first!</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT PAGE -->
+<div class="page" id="page-contact">
+  <div class="get-in-touch">
+    <h1>Get in Touch</h1>
+    <p>Have questions? Want to collaborate? We'd love to hear from you!</p>
+  </div>
+  <div class="contact-wrapper">
+    <div class="contact-box">
+      <h2>Contact Information</h2>
+      <div class="contact-item">
+        <div class="contact-icon">📧</div>
+        <div class="contact-item-text">
+          <div class="label">Email</div>
+          <div class="value">hello@wallofgiving.org</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div class="contact-item-text">
+          <div class="label">Phone</div>
+          <div class="value">+1 (555) 123-4567</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div class="contact-item-text">
+          <div class="label">Address</div>
+          <div class="value">123 Impact Way, Innovation City</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-box">
+      <h2>Send us a Message</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="c-fname" placeholder="John">
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="c-lname" placeholder="Doe">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="c-email" placeholder="john@example.com">
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="c-msg" placeholder="Your message here..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="sendContactMessage()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="logo-icon">W</div>
+    <span class="logo-text" style="font-size:1.3rem">Wall of Giving</span>
+  </div>
+  <div class="footer-links">
+    <a onclick="goTo('home')">Home</a>
+    <a onclick="goTo('problems')">Problems</a>
+    <a onclick="goTo('dashboard')">Dashboard</a>
+    <a onclick="goTo('ngo')">NGO Portal</a>
+    <a onclick="goTo('charity')">Charity</a>
+    <a onclick="goTo('contact')">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 Wall of Giving. Connecting hearts, solving problems, transforming lives.</div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="auth-title">Welcome Back</h2>
+      <button class="modal-close" onclick="closeAuth()">×</button>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</div>
+      <div class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div id="signin-form">
+      <div class="form-group"><label>Email</label><input type="email" id="si-email" placeholder="you@example.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="si-pwd" placeholder="••••••••"></div>
+      <button class="submit-btn" onclick="doSignIn()">Sign In</button>
+    </div>
+    <div id="signup-form" style="display:none">
+      <div class="form-row">
+        <div class="form-group"><label>First Name</label><input type="text" id="su-fname" placeholder="John"></div>
+        <div class="form-group"><label>Last Name</label><input type="text" id="su-lname" placeholder="Doe"></div>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="su-email" placeholder="you@example.com"></div>
+      <div class="form-group">
+        <label>Account Type</label>
+        <select id="su-type">
+          <option value="user">Individual / Student</option>
+          <option value="ngo">NGO / Organization</option>
+          <option value="donor">Donor</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Password</label><input type="password" id="su-pwd" placeholder="••••••••"></div>
+      <button class="submit-btn" onclick="doSignUp()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST PROBLEM MODAL -->
+<div class="modal-overlay" id="post-problem-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Post a Problem</h2>
+      <button class="modal-close" onclick="closeModal('post-problem-modal')">×</button>
+    </div>
+    <div class="form-group"><label>Problem Title</label><input type="text" id="pp-title" placeholder="Short, clear title"></div>
+    <div class="form-group"><label>Category</label>
+      <select id="pp-cat">
+        <option>Education</option><option>Health</option><option>Environment</option><option>Technology</option><option>Community</option><option>Water & Sanitation</option><option>Agriculture</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="pp-desc" placeholder="Describe the problem in detail..."></textarea></div>
+    <div class="form-group"><label>Location (optional)</label><input type="text" id="pp-loc" placeholder="City, State, Country"></div>
+    <button class="submit-btn" onclick="submitProblem()">Post Problem</button>
+  </div>
+</div>
+
+<!-- SUBMIT SOLUTION MODAL -->
+<div class="modal-overlay" id="solution-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Submit a Solution</h2>
+      <button class="modal-close" onclick="closeModal('solution-modal')">×</button>
+    </div>
+    <div class="form-group"><label>Solution Title</label><input type="text" id="sol-title" placeholder="Your solution name"></div>
+    <div class="form-group"><label>Approach</label><textarea id="sol-desc" placeholder="Describe your solution, how it works, and why it's effective..."></textarea></div>
+    <div class="form-group"><label>Your Name / Organization</label><input type="text" id="sol-author" placeholder="Your name"></div>
+    <button class="submit-btn" onclick="submitSolution()">Submit Solution</button>
+  </div>
+</div>
+
+<!-- CHARITY MODAL -->
+<div class="modal-overlay" id="charity-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Post a Charity Drive</h2>
+      <button class="modal-close" onclick="closeModal('charity-modal')">×</button>
+    </div>
+    <div class="form-group"><label>Drive Title</label><input type="text" id="cd-title" placeholder="e.g. Winter Clothing Drive"></div>
+    <div class="form-group"><label>Type</label>
+      <select id="cd-type"><option>Food</option><option>Clothing</option><option>Books</option><option>Volunteering</option><option>Funds</option><option>Other</option></select>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="cd-desc" placeholder="What are you collecting? Who benefits?"></textarea></div>
+    <div class="form-group"><label>Location</label><input type="text" id="cd-loc" placeholder="Where to donate/volunteer"></div>
+    <div class="form-group"><label>End Date</label><input type="date" id="cd-end"></div>
+    <button class="submit-btn" onclick="submitCharity()">Post Drive</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────
+const state = {
+  user: null,
+  problems: [],
+  solutions: {},
+  charities: [],
+  currentProblem: null,
+  postType: 'user'
+};
+
+// ─── NAVIGATION ──────────────────────────────────────────────
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if(pg) { pg.classList.add('active'); window.scrollTo(0,0); }
+  const nav = document.getElementById('nav-' + page);
+  if(nav) nav.classList.add('active');
+  if(page === 'dashboard') updateDashboard();
+  if(page === 'home') renderFeatured();
+  if(page === 'ngo') renderNGO();
+  if(page === 'charity') renderCharities();
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────
+function openAuth() { document.getElementById('auth-modal').classList.add('open'); }
+function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
+
+function switchAuthTab(tab) {
+  document.getElementById('signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-title').textContent = tab === 'signin' ? 'Welcome Back' : 'Create Account';
+}
+
+function doSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pwd = document.getElementById('si-pwd').value;
+  if(!email || !pwd) { showToast('Please fill in all fields','error'); return; }
+  state.user = { name: email.split('@')[0], email, type: 'user' };
+  updateUserUI(); closeAuth();
+  showToast('Welcome back, ' + state.user.name + '! 👋','success');
+}
+
+function doSignUp() {
+  const fname = document.getElementById('su-fname').value.trim();
+  const lname = document.getElementById('su-lname').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pwd = document.getElementById('su-pwd').value;
+  const type = document.getElementById('su-type').value;
+  if(!fname||!email||!pwd) { showToast('Please fill in required fields','error'); return; }
+  state.user = { name: fname + (lname?' '+lname:''), email, type };
+  updateUserUI(); closeAuth();
+  showToast('Account created! Welcome, ' + fname + '! 🎉','success');
+}
+
+function updateUserUI() {
+  document.getElementById('auth-btn').style.display = 'none';
+  document.getElementById('signout-btn').style.display = 'inline-flex';
+  document.getElementById('user-pill').style.display = 'flex';
+  document.getElementById('user-name').textContent = state.user.name;
+}
+
+function signOut() {
+  state.user = null;
+  document.getElementById('auth-btn').style.display = 'inline-flex';
+  document.getElementById('signout-btn').style.display = 'none';
+  document.getElementById('user-pill').style.display = 'none';
+  showToast('Signed out successfully','success');
+}
+
+// ─── MODALS ───────────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openPostProblem(type) {
+  if(!state.user) { openAuth(); return; }
+  state.postType = type || 'user';
+  document.getElementById('post-problem-modal').classList.add('open');
+}
+
+function openSolutionModal() {
+  if(!state.user) { openAuth(); return; }
+  document.getElementById('solution-modal').classList.add('open');
+}
+
+function openCharityModal() {
+  if(!state.user) { openAuth(); return; }
+  document.getElementById('charity-modal').classList.add('open');
+}
+
+// ─── PROBLEMS ─────────────────────────────────────────────────
+function submitProblem() {
+  const title = document.getElementById('pp-title').value.trim();
+  const cat = document.getElementById('pp-cat').value;
+  const desc = document.getElementById('pp-desc').value.trim();
+  const loc = document.getElementById('pp-loc').value.trim();
+  if(!title||!desc) { showToast('Please fill in title and description','error'); return; }
+  
+  const prob = {
+    id: Date.now(),
+    title, category: cat, description: desc, location: loc,
+    poster: state.user.name,
+    date: new Date().toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'}),
+    status: 'active',
+    type: state.postType
+  };
+  state.problems.unshift(prob);
+  state.solutions[prob.id] = [];
+  
+  ['pp-title','pp-desc','pp-loc'].forEach(id => document.getElementById(id).value='');
+  closeModal('post-problem-modal');
+  showToast('Problem posted successfully! ✓','success');
+  renderProblems(); renderFeatured(); updateDashboard();
+  document.getElementById('stat-problems').textContent = state.problems.length + '+';
+}
+
+function renderProblems() {
+  const list = document.getElementById('problems-list');
+  if(!state.problems.length) { list.innerHTML='<div class="empty-state" style="padding:40px;grid-column:1/-1">No problems posted yet.</div>'; return; }
+  list.innerHTML = state.problems.map(p => problemCard(p)).join('');
+}
+
+function renderFeatured() {
+  const list = document.getElementById('featured-problems');
+  const featured = state.problems.slice(0,3);
+  if(!featured.length) { list.innerHTML='<div class="empty-state" style="padding:40px;text-align:center;color:var(--muted);grid-column:1/-1">No problems posted yet. Be the first to post a challenge!</div>'; return; }
+  list.innerHTML = featured.map(p => problemCard(p)).join('');
+}
+
+function problemCard(p) {
+  const sols = (state.solutions[p.id]||[]).length;
+  const badgeClass = p.status==='active' ? 'badge-active' : p.status==='review' ? 'badge-review' : 'badge-solved';
+  return `<div class="card" onclick="viewProblem(${p.id})">
+    <span class="card-tag">${p.category}</span>
+    <h3>${p.title}</h3>
+    <p>${p.description.substring(0,120)}${p.description.length>120?'...':''}</p>
+    <div class="card-meta">
+      <span class="badge ${badgeClass}">${p.status}</span>
+      <span>By ${p.poster}</span>
+      <span>${sols} solution${sols!==1?'s':''}</span>
+      ${p.location?`<span>📍 ${p.location}</span>`:''}
+    </div>
+  </div>`;
+}
+
+function viewProblem(id) {
+  const p = state.problems.find(x => x.id === id);
+  if(!p) return;
+  state.currentProblem = id;
+  document.getElementById('detail-title').textContent = p.title;
+  document.getElementById('detail-desc').textContent = p.description;
+  document.getElementById('detail-category').textContent = p.category;
+  document.getElementById('detail-poster').textContent = 'By ' + p.poster;
+  document.getElementById('detail-date').textContent = p.date;
+  document.getElementById('sb-category').textContent = p.category;
+  document.getElementById('sb-poster').textContent = p.poster;
+  document.getElementById('sb-date').textContent = p.date;
+  document.getElementById('sb-status').textContent = p.status;
+  const badgeClass = p.status==='active'?'badge-active':p.status==='review'?'badge-review':'badge-solved';
+  document.getElementById('detail-status').className = 'badge ' + badgeClass;
+  document.getElementById('detail-status').textContent = p.status;
+  renderSolutions(id);
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-problem-detail').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderSolutions(id) {
+  const sols = state.solutions[id] || [];
+  document.getElementById('sol-count').textContent = sols.length;
+  const list = document.getElementById('solutions-list');
+  if(!sols.length) { list.innerHTML='<p style="color:var(--muted);font-size:.9rem;margin-bottom:16px">No solutions yet. Be the first!</p>'; return; }
+  list.innerHTML = sols.map((s,i) => `
+    <div class="solution-card">
+      <h4>${s.title}</h4>
+      <p>${s.description}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <span style="font-size:.8rem;color:var(--muted)">By ${s.author}</span>
+        <button class="vote-btn" onclick="vote(${id},${i})">👍 ${s.votes||0}</button>
+      </div>
+    </div>`).join('');
+}
+
+function submitSolution() {
+  const title = document.getElementById('sol-title').value.trim();
+  const desc = document.getElementById('sol-desc').value.trim();
+  const author = document.getElementById('sol-author').value.trim() || state.user?.name || 'Anonymous';
+  if(!title||!desc) { showToast('Please fill in all fields','error'); return; }
+  if(!state.solutions[state.currentProblem]) state.solutions[state.currentProblem]=[];
+  state.solutions[state.currentProblem].push({title, description: desc, author, votes:0, date: new Date().toLocaleDateString()});
+  ['sol-title','sol-desc','sol-author'].forEach(id => document.getElementById(id).value='');
+  closeModal('solution-modal');
+  showToast('Solution submitted! ✓','success');
+  renderSolutions(state.currentProblem);
+  updateDashboard();
+}
+
+function vote(problemId, solIdx) {
+  if(!state.user) { showToast('Sign in to vote','error'); return; }
+  state.solutions[problemId][solIdx].votes = (state.solutions[problemId][solIdx].votes||0)+1;
+  renderSolutions(problemId);
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────
+function updateDashboard() {
+  const active = state.problems.filter(p=>p.status==='active').length;
+  const solved = state.problems.filter(p=>p.status==='solved').length;
+  const pending = state.problems.filter(p=>p.status==='review').length;
+  const totalSols = Object.values(state.solutions).reduce((a,b)=>a+b.length,0);
+  document.getElementById('d-active').textContent = active;
+  document.getElementById('d-solutions').textContent = totalSols;
+  document.getElementById('d-solved').textContent = solved;
+  document.getElementById('d-pending').textContent = pending;
+  
+  const ra = document.getElementById('recent-activity');
+  const activities = state.problems.slice(0,5);
+  if(!activities.length) { ra.innerHTML='<div class="empty-state">No recent activity yet.</div>'; return; }
+  ra.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${activities.map(p=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-weight:600;margin-bottom:4px">${p.title}</div>
+        <div style="font-size:.82rem;color:var(--muted)">Posted by ${p.poster} · ${p.date}</div>
+      </div>
+      <span class="badge ${p.status==='active'?'badge-active':'badge-solved'}">${p.status}</span>
+    </div>`).join('')}</div>`;
+}
+
+// ─── NGO ──────────────────────────────────────────────────────
+function renderNGO() {
+  const ngoProbs = state.problems.filter(p=>p.type==='NGO');
+  document.getElementById('ngo-problems').innerHTML = ngoProbs.length
+    ? ngoProbs.map(p=>`<div class="card" onclick="viewProblem(${p.id})" style="margin-bottom:16px">
+        <span class="card-tag">${p.category}</span>
+        <h3>${p.title}</h3>
+        <p style="font-size:.85rem;color:var(--muted)">${p.description.substring(0,100)}...</p>
+        <div class="card-meta"><span>By ${p.poster}</span><span class="badge badge-active">${p.status}</span></div>
+      </div>`).join('')
+    : '<p style="color:var(--muted);font-size:.9rem">No problems posted yet.</p>';
+  
+  document.getElementById('ngo-charities').innerHTML = state.charities.length
+    ? state.charities.slice(0,3).map(c=>`<div class="card" style="margin-bottom:16px">
+        <span class="card-tag">${c.type}</span>
+        <h3>${c.title}</h3>
+        <p style="font-size:.85rem;color:var(--muted)">${c.description.substring(0,100)}</p>
+        <div class="card-meta"><span>📍 ${c.location}</span>${c.endDate?`<span>Until ${c.endDate}</span>`:''}</div>
+      </div>`).join('')
+    : '<p style="color:var(--muted);font-size:.9rem">No charity drives yet.</p>';
+}
+
+// ─── CHARITY ──────────────────────────────────────────────────
+function submitCharity() {
+  const title = document.getElementById('cd-title').value.trim();
+  const type = document.getElementById('cd-type').value;
+  const desc = document.getElementById('cd-desc').value.trim();
+  const loc = document.getElementById('cd-loc').value.trim();
+  const end = document.getElementById('cd-end').value;
+  if(!title||!desc) { showToast('Please fill in title and description','error'); return; }
+  state.charities.unshift({title, type, description: desc, location: loc, endDate: end, poster: state.user?.name||'Anonymous'});
+  ['cd-title','cd-desc','cd-loc'].forEach(id => document.getElementById(id).value='');
+  closeModal('charity-modal');
+  showToast('Charity drive posted! 🎁','success');
+  renderCharities(); renderNGO();
+}
+
+function renderCharities() {
+  const list = document.getElementById('charity-list');
+  if(!state.charities.length) { list.innerHTML='<div class="empty-state" style="padding:60px;grid-column:1/-1">No charity drives posted yet. Be the first!</div>'; return; }
+  list.innerHTML = state.charities.map(c=>`
+    <div class="card">
+      <span class="card-tag">${c.type}</span>
+      <h3>${c.title}</h3>
+      <p>${c.description.substring(0,140)}${c.description.length>140?'...':''}</p>
+      <div class="card-meta">
+        <span>By ${c.poster}</span>
+        ${c.location?`<span>📍 ${c.location}</span>`:''}
+        ${c.endDate?`<span>Until ${new Date(c.endDate).toLocaleDateString('en-IN',{month:'short',day:'numeric'})}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ─── CONTACT ──────────────────────────────────────────────────
+function sendContactMessage() {
+  const fname = document.getElementById('c-fname').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const msg = document.getElementById('c-msg').value.trim();
+  if(!fname||!email||!msg) { showToast('Please fill in all fields','error'); return; }
+  ['c-fname','c-lname','c-email','c-msg'].forEach(id => document.getElementById(id).value='');
+  showToast('Message sent! We\'ll get back to you soon. ✓','success');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ─── CLOSE MODALS ON OVERLAY CLICK ──────────────────────────
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if(e.target === this) this.classList.remove('open');
+  });
+});
+
+// ─── KEYBOARD ────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+});
+</script>
+</body>
+</html>
